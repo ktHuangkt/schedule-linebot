@@ -1,15 +1,10 @@
 # Virtual environment
 venv-schedule/
+__pycache__/
+*.pyc
 
 # Environment variables
 .env
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
 
 # Database
 *.db
@@ -21,3 +16,7 @@ __pycache__/
 
 # OS
 .DS_Store
+Thumbs.db
+
+# Logs
+*.log
