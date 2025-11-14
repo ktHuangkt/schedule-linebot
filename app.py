@@ -6,14 +6,12 @@ from linebot.v3.messaging import Configuration, ApiClient, MessagingApi, ReplyMe
 from linebot.v3.webhooks import MessageEvent, TextMessageContent
 from dotenv import load_dotenv
 
-# 載入環境變數
 load_dotenv()
 
 app = Flask(__name__)
 
-# 設定 LINE Bot
-configuration = Configuration(access_token=os.getenv('LINE_CHANNEL_ACCESS_TOKEN', 'YOUR_TOKEN'))
-handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET', 'YOUR_SECRET'))
+configuration = Configuration(access_token=os.getenv('LINE_CHANNEL_ACCESS_TOKEN'))
+handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
 
 
 @app.route("/")
@@ -21,20 +19,20 @@ def hello():
     return "Schedule LINE Bot is running! v3 API"
 
 
+# 重點：這個路由必須存在且必須有 methods=['POST']
 @app.route("/webhook", methods=['POST'])
 def webhook():
-    # get X-Line-Signature header value
-    signature = request.headers['X-Line-Signature']
+    signature = request.headers.get('X-Line-Signature')
+    if not signature:
+        abort(400)
 
-    # get request body as text
     body = request.get_data(as_text=True)
     app.logger.info(f"Request body: {body}")
 
-    # handle webhook body
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
-        app.logger.info("Invalid signature. Please check your channel access token/channel secret.")
+        app.logger.error("Invalid signature")
         abort(400)
 
     return 'OK'
@@ -44,7 +42,6 @@ def webhook():
 def handle_message(event):
     user_message = event.message.text
 
-    # 建立回覆訊息
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
