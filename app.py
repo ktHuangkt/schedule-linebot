@@ -30,12 +30,8 @@ def hello():
 
 @app.route("/health")
 def health():
-    """健康檢查端點 - 供 cron-job 和內部 ping 使用"""
-    return jsonify({
-        "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "service": "Schedule LINE Bot"
-    }), 200
+    """健康檢查端點 - 簡化輸出避免 cron-job 錯誤"""
+    return "OK", 200
 
 
 @app.route("/webhook", methods=['POST'])
